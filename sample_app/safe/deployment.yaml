@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploysafe-safe
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: deploysafe-safe
+  template:
+    metadata:
+      labels:
+        app: deploysafe-safe
+    spec:
+      containers:
+        - name: deploysafe
+          image: python:3.12-slim
+          command: ["python", "-c", "import time; time.sleep(3600)"]
+          securityContext:
+            privileged: false
+            runAsNonRoot: true
+            runAsUser: 10001
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          readinessProbe:
+            exec:
+              command: ["python", "-c", "print('ready')"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["python", "-c", "print('alive')"]
+            initialDelaySeconds: 10
+            periodSeconds: 20

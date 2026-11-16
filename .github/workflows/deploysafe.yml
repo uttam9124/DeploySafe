@@ -34,6 +34,26 @@ jobs:
         run: |
           python -m pytest -v
 
-      - name: Run DeploySafe Risk Analyzer
+      - name: Scan Safe Configuration
         run: |
+          python analyzer/risk_analyzer.py \
+            --dockerfile sample_app/safe/Dockerfile \
+            --deployment sample_app/safe/deployment.yaml \
+            --output reports/safe-report.json \
+            --fail-on-high
+
+      - name: Verify Safe Deployment Decision
+        run: |
+          python -c "import json; r=json.load(open('reports/safe-report.json')); assert r['deployment_decision'] == 'ALLOW', r; assert r['risk_level'] == 'LOW', r; print('SAFE CONFIGURATION VERIFIED: ALLOW')"
+
+      - name: Verify Unsafe Configuration Is Blocked
+        run: |
+          set +e
           python analyzer/risk_analyzer.py --fail-on-high
+          status=$?
+          set -e
+          if [ "$status" -ne 1 ]; then
+            echo "ERROR: Expected unsafe configuration to be blocked."
+            exit 1
+          fi
+          echo "UNSAFE CONFIGURATION VERIFIED: BLOCK"
