@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploysafe-demo
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: deploysafe-demo
+  template:
+    metadata:
+      labels:
+        app: deploysafe-demo
+    spec:
+      containers:
+        - name: deploysafe
+          image: deploysafe-demo:latest
+          securityContext:
+            privileged: true
+            runAsNonRoot: false
