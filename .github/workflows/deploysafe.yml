@@ -57,3 +57,14 @@ jobs:
             exit 1
           fi
           echo "UNSAFE CONFIGURATION VERIFIED: BLOCK"
+      - name: Upload DeploySafe Security Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploysafe-security-reports
+          path: |
+            reports/safe-report.json
+            reports/deploysafe-report.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Create Reports Directory
+        run: mkdir -p reports
